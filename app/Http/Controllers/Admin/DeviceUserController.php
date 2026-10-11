@@ -33,7 +33,7 @@ class DeviceUserController extends Controller
 
         return view('admin.devices.index', [
             'devices' => $devices,
-            'clients' => Client::query()->orderBy('name')->get(['id', 'name']),
+            'clients' => Client::query()->orderBy('name')->get(['id', 'name', 'contact_email', 'firebase_project_id', 'is_active']),
         ]);
     }
 

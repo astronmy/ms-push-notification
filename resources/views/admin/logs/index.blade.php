@@ -3,13 +3,8 @@
     @include('admin.logs._tabs')
     <x-filter-panel :clear-url="route('admin.logs.index', ['type' => $type])">
         <div class="filter-field">
-            <label for="filter_client">Cliente</label>
-            <select id="filter_client" name="client_id">
-                <option value="">Todos</option>
-                @foreach ($clients as $client)
-                    <option value="{{ $client->id }}" @selected(request('client_id') == $client->id)>{{ $client->name }}</option>
-                @endforeach
-            </select>
+            <label>Cliente</label>
+            <x-client-picker :clients="$clients" :selected="request('client_id')" allow-empty empty-label="Todos los clientes" />
         </div>
         <div class="filter-field">
             <label for="filter_action">Acción</label>

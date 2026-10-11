@@ -29,7 +29,7 @@ class NotificationController extends Controller
 
         return view('admin.notifications.index', [
             'notifications' => $notifications,
-            'clients' => Client::query()->orderBy('name')->get(['id', 'name']),
+            'clients' => Client::query()->orderBy('name')->get(['id', 'name', 'contact_email', 'firebase_project_id', 'is_active']),
         ]);
     }
 

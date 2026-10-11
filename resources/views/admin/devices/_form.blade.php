@@ -2,13 +2,10 @@
 <div class="space-y-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
     @unless ($editing)
         <div>
-            <x-input-label for="client_id" value="Cliente" />
-            <x-select-input id="client_id" name="client_id" class="mt-1" required>
-                <option value="">Seleccionar</option>
-                @foreach ($clients as $client)
-                    <option value="{{ $client->id }}" @selected(old('client_id') == $client->id)>{{ $client->name }}</option>
-                @endforeach
-            </x-select-input>
+            <x-input-label value="Cliente" />
+            <div class="mt-1">
+                <x-client-picker :clients="$clients" :selected="old('client_id')" empty-label="Seleccionar cliente" />
+            </div>
             <x-input-error :messages="$errors->get('client_id')" class="mt-2" />
         </div>
         <div>

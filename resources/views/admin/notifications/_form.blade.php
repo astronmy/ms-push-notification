@@ -12,16 +12,14 @@
         'clientId' => $clientId ? (int) $clientId : null,
         'selected' => array_values($selected),
         'endpoint' => url('/admin/clients/__ID__/devices'),
-     ]) }})">
+     ]) }})"
+     @client-selected="if (clientId != $event.detail.id) selected = []; clientId = $event.detail.id">
     @unless ($editing)
         <div>
-            <x-input-label for="client_id" value="Cliente" />
-            <x-select-input id="client_id" name="client_id" class="mt-1" x-model="clientId" required>
-                <option value="">Seleccionar</option>
-                @foreach ($clients as $client)
-                    <option value="{{ $client->id }}">{{ $client->name }}</option>
-                @endforeach
-            </x-select-input>
+            <x-input-label value="Cliente" />
+            <div class="mt-1">
+                <x-client-picker :clients="$clients" :selected="$clientId" empty-label="Seleccionar cliente" />
+            </div>
             <x-input-error :messages="$errors->get('client_id')" class="mt-2" />
         </div>
     @else
