@@ -1,4 +1,4 @@
-# Push Notification Service
+# Delta Notifications
 
 Backoffice y API para enviar push notifications por **FCM HTTP v1** (iOS vía APNs y Android). Cada cliente usa su propio proyecto de Firebase. La cola corre sobre la base de datos: no hace falta Redis.
 

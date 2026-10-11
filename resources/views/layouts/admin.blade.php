@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ config('app.name') }}</title>
+    <link rel="icon" href="{{ asset('assets/logo-delta.png') }}" type="image/png">
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -31,10 +32,11 @@
                     'lg:translate-x-0 lg:w-64': !sidebarCollapsed,
                     'lg:translate-x-0 lg:w-[4.5rem]': sidebarCollapsed,
                }">
-            <div class="flex h-16 shrink-0 items-center border-b border-[var(--bo-border)] px-4">
-                <a href="{{ route('admin.dashboard') }}" wire:navigate @click="closeSidebar()" class="truncate text-sm font-semibold text-white">
-                    <span x-show="showSidebarLabels">{{ config('app.name') }}</span>
-                    <span x-show="!showSidebarLabels">PN</span>
+            <div class="flex h-16 shrink-0 items-center border-b border-[var(--bo-border)]"
+                 :class="showSidebarLabels ? 'px-4' : 'justify-center px-2'">
+                <a href="{{ route('admin.dashboard') }}" wire:navigate @click="closeSidebar()" class="flex min-w-0 items-center gap-2 text-white">
+                    <img src="{{ asset('assets/logo-delta.png') }}" alt="" class="h-8 w-8 shrink-0">
+                    <span x-show="showSidebarLabels" x-cloak class="truncate text-sm font-semibold">{{ config('app.name') }}</span>
                 </a>
             </div>
             <nav class="admin-sidebar-nav flex-1 overflow-y-auto px-3 py-4">
