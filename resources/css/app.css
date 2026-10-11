@@ -1,0 +1,113 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../vendor/livewire/livewire/dist/**/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+@theme {
+    --font-sans: 'Figtree', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+:root {
+    --bo-bg: #1e293b;
+    --bo-bg-elevated: #334155;
+    --bo-accent: #7dd3fc;
+    --bo-gold: #0284c7;
+    --bo-gold-dark: #0369a1;
+    --bo-surface: #f1f5f9;
+    --bo-sand: #e2e8f0;
+    --bo-muted: #94a3b8;
+    --bo-border: #475569;
+}
+
+[x-cloak] {
+    display: none !important;
+}
+
+.admin-sidebar {
+    padding-top: env(safe-area-inset-top, 0px);
+}
+
+.admin-sidebar-nav {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+}
+
+.admin-header {
+    padding-top: env(safe-area-inset-top, 0px);
+}
+
+.admin-sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.625rem 0.75rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #fff;
+    transition: background-color 0.15s, color 0.15s;
+}
+
+.admin-sidebar-link:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+.admin-sidebar-link .admin-sidebar-icon {
+    flex-shrink: 0;
+    width: 1.25rem;
+    height: 1.25rem;
+    color: var(--bo-accent);
+}
+
+.admin-sidebar-link-active {
+    background-color: var(--bo-accent);
+    color: var(--bo-bg);
+}
+
+.admin-sidebar-link-active .admin-sidebar-icon,
+.admin-sidebar-link-active:hover .admin-sidebar-icon {
+    color: var(--bo-bg) !important;
+}
+
+.admin-sidebar-link-active:hover {
+    background-color: var(--bo-gold);
+    color: #fff;
+}
+
+input[type='text'],
+input[type='email'],
+input[type='password'],
+input[type='number'],
+input[type='search'],
+input[type='url'],
+input[type='date'],
+input[type='datetime-local'],
+select,
+textarea {
+    min-height: 2.75rem;
+    padding: 0.75rem 1rem;
+    line-height: 1.5;
+    box-sizing: border-box;
+    border-color: #d1d5db;
+    border-radius: 0.375rem;
+    background-color: #fff;
+    color: #111827;
+    font-size: 0.875rem;
+}
+
+select {
+    appearance: none;
+    padding-right: 2.5rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23334155'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1rem;
+}
+
+textarea {
+    min-height: 7rem;
+}

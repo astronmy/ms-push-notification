@@ -1,0 +1,151 @@
+openapi: 3.0.3
+info:
+  title: Push Notification Service
+  version: 1.0.0
+  description: API multi-tenant de push notifications sobre FCM HTTP v1.
+servers:
+  - url: /api/v1
+paths:
+  /users:
+    post:
+      operationId: registerUser
+      summary: Registra o actualiza un usuario y su token
+      security:
+        - ApiKey: []
+        - Bearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterUser'
+      responses:
+        '200':
+          description: Usuario actualizado
+        '201':
+          description: Usuario creado
+        '401':
+          description: API key ausente o inválida
+        '403':
+          description: Cliente inactivo
+        '422':
+          description: Validación
+  /users/{externalUserId}/token:
+    put:
+      operationId: updateToken
+      summary: Actualiza el token de un usuario existente
+      security:
+        - ApiKey: []
+        - Bearer: []
+      parameters:
+        - in: path
+          name: externalUserId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [firebase_token]
+              properties:
+                firebase_token:
+                  type: string
+                platform:
+                  type: string
+                  enum: [ios, android]
+      responses:
+        '200':
+          description: Token actualizado
+        '404':
+          description: Usuario inexistente para este cliente
+  /pushes:
+    post:
+      operationId: sendPush
+      summary: Encola una notificación
+      security:
+        - ApiKey: []
+        - Bearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendPush'
+      responses:
+        '202':
+          description: Encolada
+        '422':
+          description: Usuarios inexistentes, inactivos o Firebase sin configurar
+  /pushes/{id}:
+    get:
+      operationId: showPush
+      summary: Estado de un envío
+      security:
+        - ApiKey: []
+        - Bearer: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Estado
+        '404':
+          description: No pertenece a este cliente
+components:
+  securitySchemes:
+    ApiKey:
+      type: apiKey
+      in: header
+      name: X-API-Key
+    Bearer:
+      type: http
+      scheme: bearer
+  schemas:
+    RegisterUser:
+      type: object
+      required: [external_user_id, firebase_token, platform]
+      properties:
+        external_user_id:
+          type: string
+        firebase_token:
+          type: string
+        platform:
+          type: string
+          enum: [ios, android]
+        name:
+          type: string
+          nullable: true
+        meta:
+          type: object
+          nullable: true
+          additionalProperties: true
+    SendPush:
+      type: object
+      required: [external_user_ids, title, body]
+      properties:
+        external_user_ids:
+          type: array
+          items:
+            type: string
+        title:
+          type: string
+        body:
+          type: string
+        data:
+          type: object
+          nullable: true
+          additionalProperties: true
+        image_url:
+          type: string
+          format: uri
+          nullable: true
+        scheduled_at:
+          type: string
+          format: date-time
+          nullable: true

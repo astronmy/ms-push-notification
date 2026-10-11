@@ -1,0 +1,41 @@
+<?php
+
+return [
+    'required' => 'El campo :attribute es obligatorio.',
+    'email' => 'El campo :attribute debe ser un email válido.',
+    'string' => 'El campo :attribute debe ser texto.',
+    'integer' => 'El campo :attribute debe ser un número entero.',
+    'array' => 'El campo :attribute debe ser una lista.',
+    'boolean' => 'El campo :attribute no es válido.',
+    'url' => 'El campo :attribute debe ser una URL válida.',
+    'date' => 'El campo :attribute debe ser una fecha válida.',
+    'file' => 'El campo :attribute debe ser un archivo.',
+    'unique' => 'El valor de :attribute ya está en uso.',
+    'exists' => 'El valor de :attribute no existe.',
+    'confirmed' => 'La confirmación de :attribute no coincide.',
+    'min' => [
+        'array' => 'El campo :attribute debe tener al menos :min elementos.',
+        'string' => 'El campo :attribute debe tener al menos :min caracteres.',
+        'numeric' => 'El campo :attribute debe ser al menos :min.',
+    ],
+    'max' => [
+        'array' => 'El campo :attribute no puede tener más de :max elementos.',
+        'string' => 'El campo :attribute no puede superar :max caracteres.',
+        'file' => 'El archivo no puede superar :max kilobytes.',
+        'numeric' => 'El campo :attribute no puede ser mayor que :max.',
+    ],
+    'attributes' => [
+        'email' => 'email',
+        'password' => 'contraseña',
+        'name' => 'nombre',
+        'external_user_id' => 'usuario externo',
+        'external_user_ids' => 'usuarios',
+        'firebase_token' => 'token de Firebase',
+        'platform' => 'plataforma',
+        'title' => 'título',
+        'body' => 'mensaje',
+        'image_url' => 'imagen',
+        'scheduled_at' => 'fecha programada',
+        'role_id' => 'rol',
+    ],
+];
