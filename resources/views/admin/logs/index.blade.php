@@ -1,49 +1,47 @@
 <x-admin-layout>
     <x-slot name="header"><h1 class="text-xl font-semibold">Logs</h1></x-slot>
     @include('admin.logs._tabs')
-    <form method="GET" class="mb-4 flex flex-wrap items-end gap-4 rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-        <div>
-            <label class="block text-sm font-medium text-gray-700">Cliente</label>
-            <select name="client_id" class="mt-1">
+    <x-filter-panel :clear-url="route('admin.logs.index', ['type' => $type])">
+        <div class="filter-field">
+            <label for="filter_client">Cliente</label>
+            <select id="filter_client" name="client_id">
                 <option value="">Todos</option>
                 @foreach ($clients as $client)
                     <option value="{{ $client->id }}" @selected(request('client_id') == $client->id)>{{ $client->name }}</option>
                 @endforeach
             </select>
         </div>
-        <div>
-            <label class="block text-sm font-medium text-gray-700">Acción</label>
-            <input type="text" name="action" value="{{ request('action') }}" class="mt-1">
+        <div class="filter-field">
+            <label for="filter_action">Acción</label>
+            <input type="search" id="filter_action" name="action" value="{{ request('action') }}" placeholder="registerUser, send…">
         </div>
-        <div>
-            <label class="block text-sm font-medium text-gray-700">Método</label>
-            <input type="text" name="method" value="{{ request('method') }}" class="mt-1 w-28">
+        <div class="filter-field">
+            <label for="filter_method">Método</label>
+            <input type="text" id="filter_method" name="method" value="{{ request('method') }}" placeholder="GET, POST">
         </div>
-        <div>
-            <label class="block text-sm font-medium text-gray-700">Status</label>
-            <input type="number" name="status" value="{{ request('status') }}" class="mt-1 w-28">
+        <div class="filter-field">
+            <label for="filter_http_status">Status</label>
+            <input type="number" id="filter_http_status" name="status" value="{{ request('status') }}" placeholder="200">
         </div>
         @if ($type !== 'api')
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Notificación</label>
-                <input type="number" name="notification_id" value="{{ request('notification_id') }}" class="mt-1 w-28">
+            <div class="filter-field">
+                <label for="filter_notification">Notificación</label>
+                <input type="number" id="filter_notification" name="notification_id" value="{{ request('notification_id') }}">
             </div>
         @endif
-        <div>
-            <label class="block text-sm font-medium text-gray-700">Desde</label>
-            <input type="date" name="from" value="{{ request('from') }}" class="mt-1">
+        <div class="filter-field">
+            <label for="filter_from">Desde</label>
+            <input type="date" id="filter_from" name="from" value="{{ request('from') }}">
         </div>
-        <div>
-            <label class="block text-sm font-medium text-gray-700">Hasta</label>
-            <input type="date" name="to" value="{{ request('to') }}" class="mt-1">
+        <div class="filter-field">
+            <label for="filter_to">Hasta</label>
+            <input type="date" id="filter_to" name="to" value="{{ request('to') }}">
         </div>
-        <div>
-            <label class="block text-sm font-medium text-gray-700">Buscar en payload</label>
-            <input type="text" name="q" value="{{ request('q') }}" class="mt-1">
+        <div class="filter-field">
+            <label for="filter_q">Buscar en payload</label>
+            <input type="search" id="filter_q" name="q" value="{{ request('q') }}" placeholder="Texto dentro del JSON">
         </div>
-        <button class="rounded-md bg-[var(--bo-bg-elevated)] px-3 py-2 text-sm text-white">{{ __('admin.actions.filter') }}</button>
-        <a href="{{ route('admin.logs.index', ['type' => $type]) }}" class="rounded-md border border-gray-300 px-3 py-2 text-sm">{{ __('admin.actions.clear') }}</a>
-    </form>
+    </x-filter-panel>
     <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
         <table class="min-w-full divide-y divide-gray-200 text-sm">
             <thead class="bg-[var(--bo-bg-elevated)] text-left text-xs uppercase text-[var(--bo-sand)]">
@@ -65,7 +63,7 @@
                         <td class="px-4 py-3">{{ $log->method }}</td>
                         <td class="px-4 py-3">{{ $log->status }}</td>
                         <td class="px-4 py-3 text-right">
-                            <a href="{{ route('admin.logs.show', ['type' => $type, 'log' => $log->id]) }}" wire:navigate class="rounded-md bg-[var(--bo-bg-elevated)] px-2.5 py-1.5 text-xs text-white">{{ __('admin.actions.view') }}</a>
+                            <a href="{{ route('admin.logs.show', ['type' => $type, 'log' => $log->id]) }}" wire:navigate class="btn btn-muted btn-sm">{{ __('admin.actions.view') }}</a>
                         </td>
                     </tr>
                 @empty

@@ -20,7 +20,7 @@
                     @can('permission', 'cola.reintentar')
                         <form method="POST" action="{{ route('admin.queue.retry', $notification) }}">
                             @csrf
-                            <button class="rounded-md bg-[var(--bo-gold)] px-3 py-2 text-sm text-white">Reintentar</button>
+                            <button class="btn btn-primary btn-sm">Reintentar</button>
                         </form>
                     @endcan
                 @endif

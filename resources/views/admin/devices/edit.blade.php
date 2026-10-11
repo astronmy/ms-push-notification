@@ -1,5 +1,5 @@
 <x-admin-layout>
-    <x-slot name="header"><h1 class="text-xl font-semibold">Editar usuario</h1></x-slot>
+    <x-slot name="header"><h1 class="text-xl font-semibold">Editar usuario API</h1></x-slot>
     <form method="POST" action="{{ route('admin.devices.update', $device) }}">
         @csrf
         @method('PUT')

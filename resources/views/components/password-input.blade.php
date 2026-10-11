@@ -5,7 +5,7 @@
         @disabled($disabled)
         type="password"
         x-bind:type="show ? 'text' : 'password'"
-        {{ $attributes->merge(['class' => 'block w-full rounded-md border border-gray-300 pe-10 shadow-sm focus:border-[var(--bo-bg-elevated)] focus:ring-[var(--bo-bg-elevated)]']) }}
+        {{ $attributes->merge(['class' => 'block w-full pe-16']) }}
     >
     <button type="button" class="absolute inset-y-0 end-0 flex items-center pe-3 text-gray-500" @click="show = ! show">
         <span class="text-xs" x-text="show ? 'Ocultar' : 'Ver'"></span>

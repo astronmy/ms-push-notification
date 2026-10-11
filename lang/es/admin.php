@@ -5,11 +5,12 @@ return [
     'menu' => [
         'dashboard' => 'Inicio',
         'clients' => 'Clientes',
-        'devices' => 'Usuarios',
+        'devices' => 'Usuarios API',
         'notifications' => 'Notificaciones',
         'queue' => 'Queue',
         'logs' => 'Logs',
-        'users' => 'Usuarios del backoffice',
+        'security' => 'Seguridad',
+        'users' => 'Usuarios Sistema',
         'roles' => 'Roles',
     ],
     'user_menu' => [
@@ -23,6 +24,8 @@ return [
     ],
     'actions' => [
         'filter' => 'Filtrar',
+        'filters' => 'Filtros',
+        'filters_active' => 'activos',
         'clear' => 'Limpiar',
         'edit' => 'Editar',
         'delete' => 'Eliminar',

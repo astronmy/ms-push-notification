@@ -40,29 +40,55 @@
                 </a>
             </div>
             <nav class="admin-sidebar-nav flex-1 overflow-y-auto px-3 py-4">
+                @php
+                    $user = auth()->user();
+                    $can = fn (string $permission) => $user && $user->canPermission($permission);
+                    $items = collect([
+                        ['label' => __('admin.menu.dashboard'), 'route' => 'admin.dashboard', 'icon' => 'home', 'active' => request()->routeIs('admin.dashboard'), 'permission' => 'dashboard.ver'],
+                        ['label' => __('admin.menu.clients'), 'route' => 'admin.clients.index', 'icon' => 'clients', 'active' => request()->routeIs('admin.clients.*'), 'permission' => 'clientes.ver'],
+                        ['label' => __('admin.menu.notifications'), 'route' => 'admin.notifications.index', 'icon' => 'bell', 'active' => request()->routeIs('admin.notifications.*'), 'permission' => 'notificaciones.ver'],
+                        ['label' => __('admin.menu.queue'), 'route' => 'admin.queue.index', 'icon' => 'queue', 'active' => request()->routeIs('admin.queue.*'), 'permission' => 'cola.ver'],
+                        ['label' => __('admin.menu.logs'), 'route' => 'admin.logs.index', 'params' => ['type' => 'api'], 'icon' => 'logs', 'active' => request()->routeIs('admin.logs.*'), 'permission' => 'logs.ver'],
+                    ])->filter(fn ($item) => $can($item['permission']))->values();
+                    $securityItems = collect([
+                        ['label' => __('admin.menu.devices'), 'route' => 'admin.devices.index', 'icon' => 'api-users', 'active' => request()->routeIs('admin.devices.*'), 'permission' => 'dispositivos.ver'],
+                        ['label' => __('admin.menu.users'), 'route' => 'admin.users.index', 'icon' => 'system-users', 'active' => request()->routeIs('admin.users.*'), 'permission' => 'usuarios.ver'],
+                        ['label' => __('admin.menu.roles'), 'route' => 'admin.roles.index', 'icon' => 'roles', 'active' => request()->routeIs('admin.roles.*'), 'permission' => 'roles.ver'],
+                    ])->filter(fn ($item) => $can($item['permission']))->values();
+                    $securityActive = $securityItems->contains(fn ($item) => $item['active']);
+                @endphp
                 <ul class="space-y-1">
-                    @php
-                        $user = auth()->user();
-                        $menuItems = collect([
-                            ['label' => __('admin.menu.dashboard'), 'route' => 'admin.dashboard', 'active' => request()->routeIs('admin.dashboard'), 'permission' => 'dashboard.ver'],
-                            ['label' => __('admin.menu.clients'), 'route' => 'admin.clients.index', 'active' => request()->routeIs('admin.clients.*'), 'permission' => 'clientes.ver'],
-                            ['label' => __('admin.menu.devices'), 'route' => 'admin.devices.index', 'active' => request()->routeIs('admin.devices.*'), 'permission' => 'dispositivos.ver'],
-                            ['label' => __('admin.menu.notifications'), 'route' => 'admin.notifications.index', 'active' => request()->routeIs('admin.notifications.*'), 'permission' => 'notificaciones.ver'],
-                            ['label' => __('admin.menu.queue'), 'route' => 'admin.queue.index', 'active' => request()->routeIs('admin.queue.*'), 'permission' => 'cola.ver'],
-                            ['label' => __('admin.menu.logs'), 'route' => 'admin.logs.index', 'params' => ['type' => 'api'], 'active' => request()->routeIs('admin.logs.*'), 'permission' => 'logs.ver'],
-                            ['label' => __('admin.menu.users'), 'route' => 'admin.users.index', 'active' => request()->routeIs('admin.users.*'), 'permission' => 'usuarios.ver'],
-                            ['label' => __('admin.menu.roles'), 'route' => 'admin.roles.index', 'active' => request()->routeIs('admin.roles.*'), 'permission' => 'roles.ver'],
-                        ])->filter(fn ($item) => $user && $user->canPermission($item['permission']))->values();
-                    @endphp
-                    @foreach ($menuItems as $item)
+                    @foreach ($items as $item)
                         <li>
                             <a href="{{ route($item['route'], $item['params'] ?? []) }}" wire:navigate @click="closeSidebar()"
                                class="admin-sidebar-link {{ $item['active'] ? 'admin-sidebar-link-active' : '' }}">
-                                <span class="admin-sidebar-icon h-2 w-2 rounded-full bg-current"></span>
+                                <span class="admin-sidebar-icon"><x-admin.icon :name="$item['icon']" /></span>
                                 <span x-show="showSidebarLabels" x-cloak>{{ $item['label'] }}</span>
                             </a>
                         </li>
                     @endforeach
+                    @if ($securityItems->isNotEmpty())
+                        <li x-data="{ open: {{ $securityActive ? 'true' : 'false' }} }">
+                            <button type="button"
+                                    class="admin-sidebar-link w-full {{ $securityActive ? 'admin-sidebar-link-parent' : '' }}"
+                                    @click="if (!showSidebarLabels) { sidebarCollapsed = false; localStorage.setItem('adminSidebarCollapsed', 'false'); } open = !open">
+                                <span class="admin-sidebar-icon"><x-admin.icon name="shield" /></span>
+                                <span x-show="showSidebarLabels" x-cloak class="flex-1 text-left">{{ __('admin.menu.security') }}</span>
+                                <svg x-show="showSidebarLabels" class="h-4 w-4 shrink-0 transition-transform" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            </button>
+                            <ul x-show="open" x-cloak class="mt-1 space-y-1">
+                                @foreach ($securityItems as $item)
+                                    <li>
+                                        <a href="{{ route($item['route']) }}" wire:navigate @click="closeSidebar()"
+                                           class="admin-sidebar-link admin-sidebar-sublink {{ $item['active'] ? 'admin-sidebar-link-active' : '' }}">
+                                            <span class="admin-sidebar-icon"><x-admin.icon :name="$item['icon']" /></span>
+                                            <span x-show="showSidebarLabels" x-cloak>{{ $item['label'] }}</span>
+                                        </a>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </li>
+                    @endif
                 </ul>
             </nav>
         </aside>

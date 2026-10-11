@@ -5,7 +5,7 @@
     <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         @foreach ([
             ['label' => 'Clientes', 'value' => $clients],
-            ['label' => 'Usuarios', 'value' => $devices],
+            ['label' => 'Usuarios API', 'value' => $devices],
             ['label' => 'En cola', 'value' => $pending],
             ['label' => 'Fallidos', 'value' => $failed],
         ] as $card)
