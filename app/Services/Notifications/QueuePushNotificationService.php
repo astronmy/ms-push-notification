@@ -138,7 +138,7 @@ class QueuePushNotificationService
     {
         if (! $client->hasFirebase()) {
             throw ValidationException::withMessages([
-                'client' => 'El cliente no tiene un proyecto Firebase configurado.',
+                'client_id' => 'El cliente no tiene un proyecto Firebase configurado. Cargá la service account en la ficha del cliente.',
             ]);
         }
     }

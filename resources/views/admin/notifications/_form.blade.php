@@ -7,6 +7,16 @@
     $dataJson = old('data_json', $editing && $notification->data ? json_encode($notification->data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) : '');
     $scheduled = old('scheduled_at', $editing && $notification->scheduled_at ? $notification->scheduled_at->format('Y-m-d\TH:i') : '');
 @endphp
+@if ($errors->any())
+    <div class="mb-4 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+        <p class="font-semibold">No se pudo guardar el envío.</p>
+        <ul class="mt-2 list-disc space-y-1 pl-5">
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
 <div class="space-y-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm"
      x-data="pushForm({{ \Illuminate\Support\Js::from([
         'clientId' => $clientId ? (int) $clientId : null,
