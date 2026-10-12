@@ -13,7 +13,7 @@
         'selected' => array_values($selected),
         'endpoint' => url('/admin/clients/__ID__/devices'),
      ]) }})"
-     @client-selected="if (clientId != $event.detail.id) selected = []; clientId = $event.detail.id">
+     @client-selected.window="if (clientId != $event.detail.id) selected = []; clientId = $event.detail.id">
     @unless ($editing)
         <div>
             <x-input-label value="Cliente" />
@@ -37,7 +37,8 @@
                     <span x-text="device.external_user_id + (device.name ? ' · ' + device.name : '') + ' · ' + device.platform"></span>
                 </label>
             </template>
-            <p class="text-sm text-gray-500" x-show="!loading && devices.length === 0">No hay usuarios activos para este cliente.</p>
+            <p class="text-sm text-gray-500" x-show="!clientId && !loading">Elegí un cliente para ver sus usuarios.</p>
+            <p class="text-sm text-gray-500" x-show="clientId && !loading && !loadError && devices.length === 0">No hay usuarios activos para este cliente.</p>
         </div>
         <x-input-error :messages="$errors->get('external_user_ids')" class="mt-2" />
     </div>
