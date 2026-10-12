@@ -3,6 +3,7 @@
 namespace App\Services\Firebase;
 
 use App\Enums\Platform;
+use App\Models\Client;
 use App\Models\PushNotification;
 
 class FcmMessageBuilder
@@ -10,7 +11,7 @@ class FcmMessageBuilder
     /**
      * @return array<string, mixed>
      */
-    public function build(string $token, PushNotification $notification, Platform $platform): array
+    public function build(string $token, PushNotification $notification, Platform $platform, ?Client $client = null): array
     {
         $message = [
             'token' => $token,
@@ -40,8 +41,16 @@ class FcmMessageBuilder
             $message['data'] = $data;
         }
 
+        $androidNotification = array_filter([
+            'image' => $notification->image_url,
+            'icon' => $client?->android_notification_icon,
+        ], fn (mixed $value) => $value !== null && $value !== '');
+
+        if ($androidNotification !== []) {
+            $message['android']['notification'] = $androidNotification;
+        }
+
         if (filled($notification->image_url)) {
-            $message['android']['notification'] = ['image' => $notification->image_url];
             $message['apns']['payload']['aps']['mutable-content'] = 1;
             $message['apns']['fcm_options'] = ['image' => $notification->image_url];
         }

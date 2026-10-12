@@ -54,6 +54,7 @@ class ClientController extends Controller
                 'notes' => $data['notes'] ?? null,
                 'rate_limit_per_minute' => $data['rate_limit_per_minute'] ?? null,
                 'firebase_project_id' => $data['firebase_project_id'] ?? null,
+                'android_notification_icon' => $data['android_notification_icon'] ?? null,
                 'api_key_hash' => $placeholder,
                 'api_key_prefix' => substr($placeholder, 0, 12),
                 'api_key_last_four' => substr($placeholder, -4),
@@ -93,6 +94,7 @@ class ClientController extends Controller
             'contact_email' => $data['contact_email'] ?? null,
             'notes' => $data['notes'] ?? null,
             'rate_limit_per_minute' => $data['rate_limit_per_minute'] ?? null,
+            'android_notification_icon' => $data['android_notification_icon'] ?? null,
         ]);
 
         $credentials->storeServiceAccount(

@@ -25,6 +25,7 @@ class FcmClient
             $recipient->firebase_token,
             $notification,
             $recipient->deviceUser->platform,
+            $client,
         );
         $url = sprintf((string) config('push.fcm.send_url'), $client->firebase_project_id);
 

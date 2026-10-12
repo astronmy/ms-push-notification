@@ -20,6 +20,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
     'api_key_prefix',
     'api_key_last_four',
     'firebase_project_id',
+    'android_notification_icon',
     'firebase_service_account',
     'rate_limit_per_minute',
 ])]

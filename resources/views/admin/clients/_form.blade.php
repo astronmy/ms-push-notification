@@ -57,6 +57,13 @@
             <x-input-error :messages="$errors->get('firebase_project_id')" class="mt-2" />
         </div>
 
+        <div class="mt-4">
+            <x-input-label for="android_notification_icon" value="Ícono de Android" />
+            <x-text-input id="android_notification_icon" name="android_notification_icon" class="mt-1 block w-full" :value="old('android_notification_icon', $editing ? $client->android_notification_icon : '')" placeholder="ic_notification" />
+            <p class="mt-1 text-xs text-slate-500">Nombre del drawable dentro de la app, sin extensión. Si lo dejás vacío, Android usa el ícono de la app.</p>
+            <x-input-error :messages="$errors->get('android_notification_icon')" class="mt-2" />
+        </div>
+
         <div class="mt-4" x-data="{ fileName: '' }">
             <x-input-label for="service_account" value="Service account JSON" />
             <label class="file-drop mt-1">
