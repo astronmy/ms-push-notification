@@ -144,6 +144,36 @@ input[type='file'] {
     color: #334155;
 }
 
+.file-drop {
+    position: relative;
+    display: flex;
+    min-height: 8.5rem;
+    cursor: pointer;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    border: 1.5px dashed #7dd3fc;
+    border-radius: 0.75rem;
+    background: #fff;
+    padding: 1.25rem;
+    text-align: center;
+    transition: border-color 0.15s, background-color 0.15s;
+}
+
+.file-drop:hover,
+.file-drop:focus-within {
+    border-color: #0284c7;
+    background: #f0f9ff;
+}
+
+.file-drop input[type='file'] {
+    position: absolute;
+    inset: 0;
+    cursor: pointer;
+    opacity: 0;
+}
+
 .btn {
     display: inline-flex;
     align-items: center;
