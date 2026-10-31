@@ -72,6 +72,22 @@ class PushNotification extends Model
     }
 
     /**
+     * Se puede relanzar si quedan destinatarios por enviar y no hay un job trabajando:
+     * fallido, marcado como enviado con pendientes, o en proceso pero trabado.
+     */
+    public function isResumable(): bool
+    {
+        $stalled = $this->status === PushNotificationStatus::Processing
+            && $this->updated_at?->lt(now()->subMinutes(config('push.delivery.stalled_after_minutes', 5)));
+
+        if (! in_array($this->status, [PushNotificationStatus::Failed, PushNotificationStatus::Sent], true) && ! $stalled) {
+            return false;
+        }
+
+        return $this->recipients()->deliverable()->exists();
+    }
+
+    /**
      * Destinatarios paginados para el detalle del envío, opcionalmente filtrados por estado.
      */
     public function paginatedRecipients(?string $status, int $perPage = 50): LengthAwarePaginator

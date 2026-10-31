@@ -12,18 +12,22 @@ class DeliverPushNotification
 {
     public function __construct(private readonly FcmClient $fcm) {}
 
-    public function deliver(int $pushNotificationId): void
+    /**
+     * Procesa una tanda de destinatarios. Devuelve true si quedan más por enviar
+     * (el job encadena otro), false si el envío terminó.
+     */
+    public function deliver(int $pushNotificationId, bool $continuation = false): bool
     {
         $notification = PushNotification::query()
-            ->with(['client', 'recipients.deviceUser'])
+            ->with('client')
             ->find($pushNotificationId);
 
         if (! $notification || $notification->status === PushNotificationStatus::Cancelled) {
-            return;
+            return false;
         }
 
         if ($notification->status === PushNotificationStatus::Sent) {
-            return;
+            return false;
         }
 
         $client = $notification->client;
@@ -35,26 +39,27 @@ class DeliverPushNotification
                 'last_error' => 'El cliente no tiene Firebase configurado o está inactivo.',
             ]);
 
-            return;
+            return false;
         }
 
-        $notification->update([
+        $notification->forceFill([
             'status' => PushNotificationStatus::Processing,
-            'processing_started_at' => now(),
-            'attempts' => $notification->attempts + 1,
+            'processing_started_at' => $continuation ? ($notification->processing_started_at ?? now()) : now(),
+            'attempts' => $continuation ? $notification->attempts : $notification->attempts + 1,
         ]);
+        // Siempre actualiza updated_at: sirve para detectar envíos trabados.
+        $notification->updated_at = now();
+        $notification->save();
 
         $retryableFailure = false;
         $lastError = null;
 
-        $recipients = $notification->recipients->filter(function ($recipient) {
-            if ($recipient->status === RecipientStatus::Pending) {
-                return true;
-            }
-
-            return $recipient->status === RecipientStatus::Failed
-                && $recipient->error_code === 'transient';
-        });
+        $recipients = $notification->recipients()
+            ->deliverable()
+            ->with('deviceUser')
+            ->orderBy('id')
+            ->limit(max(1, (int) config('push.delivery.chunk_size', 100)))
+            ->get();
 
         foreach ($recipients as $recipient) {
             if (! $recipient->deviceUser) {
@@ -119,11 +124,6 @@ class DeliverPushNotification
             }
         }
 
-        $notification->load('recipients');
-        $anySent = $notification->recipients->contains(
-            fn ($recipient) => $recipient->status === RecipientStatus::Sent
-        );
-
         if ($retryableFailure) {
             $notification->update([
                 'status' => PushNotificationStatus::Processing,
@@ -133,11 +133,21 @@ class DeliverPushNotification
             throw new TransientFcmException($lastError ?? 'Error transitorio de FCM.');
         }
 
+        if ($notification->recipients()->deliverable()->exists()) {
+            return true;
+        }
+
+        $anySent = $notification->recipients()
+            ->where('status', RecipientStatus::Sent->value)
+            ->exists();
+
         $notification->update([
             'status' => $anySent ? PushNotificationStatus::Sent : PushNotificationStatus::Failed,
             'sent_at' => $anySent ? now() : null,
             'failed_at' => $anySent ? null : now(),
             'last_error' => $anySent ? null : ($lastError ?? 'Ningún destinatario pudo recibir la notificación.'),
         ]);
+
+        return false;
     }
 }

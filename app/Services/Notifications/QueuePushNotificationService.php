@@ -134,6 +134,18 @@ class QueuePushNotificationService
         }
     }
 
+    /**
+     * Encola la siguiente tanda de un envío que ya está en proceso.
+     */
+    public function dispatchContinuation(int $pushNotificationId): void
+    {
+        $jobId = Bus::dispatch(new SendPushNotificationJob($pushNotificationId, continuation: true));
+
+        if (is_numeric($jobId)) {
+            PushNotification::query()->whereKey($pushNotificationId)->update(['job_id' => (int) $jobId]);
+        }
+    }
+
     private function assertFirebase(Client $client): void
     {
         if (! $client->hasFirebase()) {

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\RecipientStatus;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -27,6 +28,19 @@ class PushNotificationRecipient extends Model
             'status' => RecipientStatus::class,
             'sent_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Destinatarios que todavía hay que intentar enviar: pendientes o con error transitorio.
+     */
+    public function scopeDeliverable(Builder $query): Builder
+    {
+        return $query->where(function (Builder $query) {
+            $query->where('status', RecipientStatus::Pending->value)
+                ->orWhere(fn (Builder $query) => $query
+                    ->where('status', RecipientStatus::Failed->value)
+                    ->where('error_code', 'transient'));
+        });
     }
 
     public function pushNotification(): BelongsTo

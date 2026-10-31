@@ -16,11 +16,11 @@
                         </form>
                     @endcan
                 @endif
-                @if ($notification->status->value === 'failed')
+                @if ($notification->isResumable())
                     @can('permission', 'cola.reintentar')
-                        <form method="POST" action="{{ route('admin.queue.retry', $notification) }}">
+                        <form method="POST" action="{{ route('admin.queue.retry', $notification) }}" onsubmit="return confirm('¿Reenviar a los destinatarios pendientes?')">
                             @csrf
-                            <button class="btn btn-primary btn-sm">Reintentar</button>
+                            <button class="btn btn-primary btn-sm">Reintentar pendientes</button>
                         </form>
                     @endcan
                 @endif

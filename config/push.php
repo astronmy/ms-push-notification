@@ -16,4 +16,12 @@ return [
         'token_ttl_minutes' => 50,
     ],
 
+    'delivery' => [
+        // Destinatarios que procesa cada job antes de encadenar el siguiente.
+        // Mantenerlo bajo para que cada job termine muy por debajo del timeout del worker.
+        'chunk_size' => (int) env('PUSH_CHUNK_SIZE', 100),
+        // Minutos sin actividad para considerar trabado un envío en proceso.
+        'stalled_after_minutes' => (int) env('PUSH_STALLED_AFTER_MINUTES', 5),
+    ],
+
 ];

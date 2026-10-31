@@ -5,37 +5,54 @@ namespace App\Services\Notifications;
 use App\Enums\PushNotificationStatus;
 use App\Enums\RecipientStatus;
 use App\Models\PushNotification;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class RetryPushNotificationService
 {
     public function __construct(private readonly QueuePushNotificationService $queue) {}
 
-    public function retry(PushNotification $notification): PushNotification
+    /**
+     * Relanza los destinatarios pendientes y los que fallaron con error transitorio.
+     * Sirve para envíos fallidos, marcados como enviados con pendientes o trabados en proceso.
+     *
+     * @param  bool  $force  Relanza aunque el envío figure en proceso con actividad reciente.
+     */
+    public function retry(PushNotification $notification, bool $force = false): PushNotification
     {
-        if ($notification->status !== PushNotificationStatus::Failed) {
+        $allowedStatuses = [
+            PushNotificationStatus::Failed,
+            PushNotificationStatus::Sent,
+            PushNotificationStatus::Processing,
+        ];
+
+        if (! in_array($notification->status, $allowedStatuses, true)) {
             throw ValidationException::withMessages([
-                'status' => 'Solo se puede reintentar un envío fallido.',
+                'status' => 'Solo se puede reintentar un envío fallido, enviado con pendientes o trabado.',
             ]);
         }
 
-        $retryable = $notification->recipients()
-            ->where('status', RecipientStatus::Failed)
-            ->where('error_code', 'transient')
-            ->exists();
+        if (! $force && ! $notification->isResumable()) {
+            throw ValidationException::withMessages([
+                'status' => $notification->recipients()->deliverable()->exists()
+                    ? 'El envío sigue procesándose. Esperá unos minutos antes de reintentarlo.'
+                    : 'No hay destinatarios reintentables. Los tokens inválidos no se reintentan.',
+            ]);
+        }
 
-        $pending = $notification->recipients()
-            ->where('status', RecipientStatus::Pending)
-            ->exists();
-
-        if (! $retryable && ! $pending) {
+        if (! $notification->recipients()->deliverable()->exists()) {
             throw ValidationException::withMessages([
                 'status' => 'No hay destinatarios reintentables. Los tokens inválidos no se reintentan.',
             ]);
         }
 
+        // Saca de la cola cualquier job viejo de este envío para no duplicar envíos.
+        if ($notification->job_id) {
+            DB::table('jobs')->where('id', $notification->job_id)->delete();
+        }
+
         $notification->recipients()
-            ->where('status', RecipientStatus::Failed)
+            ->where('status', RecipientStatus::Failed->value)
             ->where('error_code', 'transient')
             ->update([
                 'status' => RecipientStatus::Pending->value,
