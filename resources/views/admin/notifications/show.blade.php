@@ -76,9 +76,21 @@
         </section>
 
         <section class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-            <div class="flex items-center justify-between border-b border-slate-100 px-5 py-3 sm:px-6">
-                <h3 class="text-sm font-semibold text-slate-900">Destinatarios</h3>
-                <span class="text-sm text-slate-500">{{ $notification->recipients_count }}</span>
+            @php($currentRecipientStatus = request('recipient_status', ''))
+            <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-5 py-3 sm:px-6">
+                <h3 class="text-sm font-semibold text-slate-900">Destinatarios <span class="font-normal text-slate-500">({{ $notification->recipients_count }})</span></h3>
+                <form method="GET" class="flex items-center gap-2">
+                    <label for="recipient_status" class="text-sm text-slate-600">Estado</label>
+                    <select id="recipient_status" name="recipient_status" onchange="this.form.submit()" class="rounded-md border border-slate-300 py-1 pl-2 pr-8 text-sm">
+                        <option value="">Todos ({{ $notification->recipients_count }})</option>
+                        @foreach (\App\Enums\RecipientStatus::cases() as $recipientStatus)
+                            <option value="{{ $recipientStatus->value }}" @selected($currentRecipientStatus === $recipientStatus->value)>
+                                {{ $recipientStatus->label() }} ({{ $recipientCounts[$recipientStatus->value] ?? 0 }})
+                            </option>
+                        @endforeach
+                    </select>
+                    <noscript><button class="btn btn-secondary btn-sm">Filtrar</button></noscript>
+                </form>
             </div>
             <table class="min-w-full divide-y divide-slate-200 text-sm">
                 <thead class="bg-[var(--bo-bg-elevated)] text-left text-xs uppercase text-[var(--bo-sand)]">
@@ -101,7 +113,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="px-4 py-8 text-center text-slate-500">Sin destinatarios</td>
+                            <td colspan="5" class="px-4 py-8 text-center text-slate-500">{{ $currentRecipientStatus ? 'Sin destinatarios con este estado' : 'Sin destinatarios' }}</td>
                         </tr>
                     @endforelse
                 </tbody>

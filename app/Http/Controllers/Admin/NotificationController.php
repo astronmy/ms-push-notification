@@ -64,7 +64,7 @@ class NotificationController extends Controller
             ->with('status', __('notification.messages.queued'));
     }
 
-    public function show(PushNotification $notification): View
+    public function show(Request $request, PushNotification $notification): View
     {
         $this->authorize('view', $notification);
 
@@ -72,11 +72,8 @@ class NotificationController extends Controller
 
         return view('admin.notifications.show', [
             'notification' => $notification,
-            'recipients' => $notification->recipients()
-                ->with('deviceUser')
-                ->orderBy('id')
-                ->paginate(50)
-                ->withQueryString(),
+            'recipients' => $notification->paginatedRecipients($request->string('recipient_status')->toString()),
+            'recipientCounts' => $notification->recipientStatusCounts(),
         ]);
     }
 
