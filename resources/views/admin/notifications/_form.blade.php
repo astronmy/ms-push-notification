@@ -38,6 +38,13 @@
 
     <div>
         <x-input-label value="Destinatarios activos" />
+        <div class="mt-2 flex items-center justify-between" x-show="devices.length > 0" x-cloak>
+            <label class="flex items-center gap-2 text-sm font-medium text-gray-700">
+                <input type="checkbox" x-ref="selectAll" :checked="allSelected" @change="toggleAll($event.target.checked)">
+                <span>Seleccionar todos</span>
+            </label>
+            <span class="text-xs text-gray-500" x-text="selectedCount + ' de ' + devices.length + ' seleccionados'"></span>
+        </div>
         <p class="mt-1 text-sm text-gray-500" x-show="loading">Cargando usuarios…</p>
         <p class="mt-1 text-sm text-red-600" x-show="loadError" x-text="loadError"></p>
         <div class="mt-2 max-h-64 space-y-2 overflow-y-auto rounded-md border border-gray-200 p-3">
@@ -92,7 +99,27 @@
             loadError: '',
             init() {
                 this.$watch('clientId', () => this.fetchDevices());
+                this.$watch('selected', () => this.syncSelectAll());
+                this.$watch('devices', () => this.syncSelectAll());
                 if (this.clientId) this.fetchDevices();
+            },
+            get deviceIds() {
+                return [...new Set(this.devices.map((device) => device.external_user_id))];
+            },
+            get selectedCount() {
+                return this.deviceIds.filter((id) => this.selected.includes(id)).length;
+            },
+            get allSelected() {
+                return this.deviceIds.length > 0 && this.selectedCount === this.deviceIds.length;
+            },
+            toggleAll(checked) {
+                this.selected = checked ? [...this.deviceIds] : [];
+            },
+            syncSelectAll() {
+                this.$nextTick(() => {
+                    if (!this.$refs.selectAll) return;
+                    this.$refs.selectAll.indeterminate = this.selectedCount > 0 && !this.allSelected;
+                });
             },
             toggle(id) {
                 if (this.selected.includes(id)) {
