@@ -3,6 +3,9 @@
     $selected = old('external_user_ids', $editing
         ? $notification->recipients->map(fn ($recipient) => $recipient->deviceUser?->external_user_id)->filter()->values()->all()
         : []);
+    if (is_string($selected)) {
+        $selected = json_decode($selected, true) ?: [];
+    }
     $clientId = old('client_id', $editing ? $notification->client_id : '');
     $dataJson = old('data_json', $editing && $notification->data ? json_encode($notification->data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) : '');
     $scheduled = old('scheduled_at', $editing && $notification->scheduled_at ? $notification->scheduled_at->format('Y-m-d\TH:i') : '');
@@ -38,6 +41,7 @@
 
     <div>
         <x-input-label value="Destinatarios activos" />
+        <input type="hidden" name="external_user_ids" :value="JSON.stringify(selected)">
         <div class="mt-2 flex items-center justify-between" x-show="devices.length > 0" x-cloak>
             <label class="flex items-center gap-2 text-sm font-medium text-gray-700">
                 <input type="checkbox" x-ref="selectAll" :checked="allSelected" @change="toggleAll($event.target.checked)">
@@ -50,7 +54,7 @@
         <div class="mt-2 max-h-64 space-y-2 overflow-y-auto rounded-md border border-gray-200 p-3">
             <template x-for="device in devices" :key="device.external_user_id">
                 <label class="flex items-center gap-2 text-sm text-gray-700">
-                    <input type="checkbox" name="external_user_ids[]" :value="device.external_user_id" :checked="selected.includes(device.external_user_id)" @change="toggle(device.external_user_id)">
+                    <input type="checkbox" :value="device.external_user_id" :checked="selected.includes(device.external_user_id)" @change="toggle(device.external_user_id)">
                     <span x-text="device.external_user_id + (device.name ? ' · ' + device.name : '') + ' · ' + device.platform"></span>
                 </label>
             </template>

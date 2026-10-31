@@ -2,10 +2,13 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Http\Requests\Admin\Concerns\DecodesExternalUserIds;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdatePushNotificationRequest extends FormRequest
 {
+    use DecodesExternalUserIds;
+
     public function authorize(): bool
     {
         return $this->user()?->canPermission('notificaciones.editar') ?? false;
