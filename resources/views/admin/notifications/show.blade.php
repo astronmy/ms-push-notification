@@ -78,7 +78,7 @@
         <section class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
             <div class="flex items-center justify-between border-b border-slate-100 px-5 py-3 sm:px-6">
                 <h3 class="text-sm font-semibold text-slate-900">Destinatarios</h3>
-                <span class="text-sm text-slate-500">{{ $notification->recipients->count() }}</span>
+                <span class="text-sm text-slate-500">{{ $notification->recipients_count }}</span>
             </div>
             <table class="min-w-full divide-y divide-slate-200 text-sm">
                 <thead class="bg-[var(--bo-bg-elevated)] text-left text-xs uppercase text-[var(--bo-sand)]">
@@ -91,7 +91,7 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-200">
-                    @forelse ($notification->recipients as $recipient)
+                    @forelse ($recipients as $recipient)
                         <tr>
                             <td class="px-4 py-3 font-medium text-slate-900">{{ $recipient->deviceUser?->external_user_id ?: '—' }}</td>
                             <td class="px-4 py-3 text-slate-700">{{ $recipient->deviceUser?->platform?->label() ?: '—' }}</td>
@@ -106,6 +106,9 @@
                     @endforelse
                 </tbody>
             </table>
+            @if ($recipients->hasPages())
+                @include('admin.partials.pager', ['paginator' => $recipients])
+            @endif
         </section>
     </div>
 </x-admin-layout>

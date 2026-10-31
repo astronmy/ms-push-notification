@@ -68,9 +68,16 @@ class NotificationController extends Controller
     {
         $this->authorize('view', $notification);
 
-        $notification->load(['client', 'creator', 'recipients.deviceUser']);
+        $notification->load(['client', 'creator'])->loadCount('recipients');
 
-        return view('admin.notifications.show', compact('notification'));
+        return view('admin.notifications.show', [
+            'notification' => $notification,
+            'recipients' => $notification->recipients()
+                ->with('deviceUser')
+                ->orderBy('id')
+                ->paginate(50)
+                ->withQueryString(),
+        ]);
     }
 
     public function edit(PushNotification $notification): View

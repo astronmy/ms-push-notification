@@ -49,10 +49,15 @@ class QueueController extends Controller
     public function show(PushNotification $notification): View
     {
         $this->authorize('view', $notification);
-        $notification->load(['client', 'creator', 'recipients.deviceUser']);
+        $notification->load(['client', 'creator'])->loadCount('recipients');
 
         return view('admin.notifications.show', [
             'notification' => $notification,
+            'recipients' => $notification->recipients()
+                ->with('deviceUser')
+                ->orderBy('id')
+                ->paginate(50)
+                ->withQueryString(),
             'fromQueue' => true,
         ]);
     }
