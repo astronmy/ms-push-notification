@@ -52,13 +52,7 @@ class QueuePushNotificationService
                 'attempts' => 0,
             ]);
 
-            foreach ($devices as $device) {
-                $notification->recipients()->create([
-                    'device_user_id' => $device->id,
-                    'firebase_token' => $device->firebase_token,
-                    'status' => RecipientStatus::Pending,
-                ]);
-            }
+            $this->createRecipients($notification, $devices);
 
             $this->dispatch($notification);
 
@@ -105,13 +99,7 @@ class QueuePushNotificationService
 
             $notification->recipients()->delete();
 
-            foreach ($devices as $device) {
-                $notification->recipients()->create([
-                    'device_user_id' => $device->id,
-                    'firebase_token' => $device->firebase_token,
-                    'status' => RecipientStatus::Pending,
-                ]);
-            }
+            $this->createRecipients($notification, $devices);
 
             $this->dispatch($notification->fresh());
 
@@ -143,6 +131,35 @@ class QueuePushNotificationService
 
         if (is_numeric($jobId)) {
             PushNotification::query()->whereKey($pushNotificationId)->update(['job_id' => (int) $jobId]);
+        }
+    }
+
+    /**
+     * Crea un destinatario por dispositivo. Si varios usuarios comparten el mismo
+     * token de Firebase (mismo teléfono), solo el primero queda pendiente y el resto
+     * se guarda como omitido, para no mandar la notificación varias veces al mismo equipo.
+     *
+     * @param  Collection<int, DeviceUser>  $devices
+     */
+    private function createRecipients(PushNotification $notification, Collection $devices): void
+    {
+        $firstByToken = [];
+
+        foreach ($devices->sortBy('id') as $device) {
+            $token = (string) $device->firebase_token;
+            $duplicateOf = $firstByToken[$token] ?? null;
+
+            $notification->recipients()->create([
+                'device_user_id' => $device->id,
+                'firebase_token' => $device->firebase_token,
+                'status' => $duplicateOf ? RecipientStatus::Skipped : RecipientStatus::Pending,
+                'error_code' => $duplicateOf ? 'duplicate_token' : null,
+                'error_message' => $duplicateOf
+                    ? "Token repetido: se envía una sola vez (mismo dispositivo que {$duplicateOf})."
+                    : null,
+            ]);
+
+            $firstByToken[$token] ??= $device->external_user_id;
         }
     }
 

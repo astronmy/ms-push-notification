@@ -61,7 +61,36 @@ class DeliverPushNotification
             ->limit(max(1, (int) config('push.delivery.chunk_size', 100)))
             ->get();
 
+        // Tokens que ya recibieron este envío: no se vuelve a mandar al mismo dispositivo.
+        $sentTokens = array_fill_keys(
+            $notification->recipients()
+                ->where('status', RecipientStatus::Sent->value)
+                ->pluck('firebase_token')
+                ->all(),
+            true,
+        );
+        $attemptedTokens = [];
+
         foreach ($recipients as $recipient) {
+            $token = (string) $recipient->firebase_token;
+
+            if (isset($sentTokens[$token])) {
+                $recipient->update([
+                    'status' => RecipientStatus::Skipped,
+                    'error_code' => 'duplicate_token',
+                    'error_message' => 'Token repetido: este dispositivo ya recibió la notificación.',
+                ]);
+
+                continue;
+            }
+
+            // Duplicado dentro de la misma tanda cuyo primer intento no salió: queda para el reintento.
+            if (isset($attemptedTokens[$token])) {
+                continue;
+            }
+
+            $attemptedTokens[$token] = true;
+
             if (! $recipient->deviceUser) {
                 $recipient->update([
                     'status' => RecipientStatus::Failed,
@@ -87,6 +116,7 @@ class DeliverPushNotification
             }
 
             if ($result->successful) {
+                $sentTokens[$token] = true;
                 $recipient->update([
                     'status' => RecipientStatus::Sent,
                     'error_code' => null,
